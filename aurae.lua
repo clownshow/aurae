@@ -881,8 +881,8 @@ end
 
 function AUF.Debuff:Build()
 	for i=1,16 do
-		AUF.Debuff[i] = CreateFrame("Model", "AUFDebuff", nil, "CooldownFrameTemplate")
-		AUF.Debuff[i].parent = CreateFrame("Frame", nil, getglobal(AUF.DebuffAnchor..i))
+		AUF.Debuff[i] = CreateFrame("Model", "AUFDebuff"..i, nil, "CooldownFrameTemplate")
+		AUF.Debuff[i].parent = CreateFrame("Frame", "AUFDebuff"..i.."Cooldown", getglobal(AUF.DebuffAnchor..i))
 		AUF.Debuff[i].parent:SetPoint("CENTER",getglobal(AUF.DebuffAnchor..i),"CENTER", 0, 0)
 		AUF.Debuff[i].parent:SetWidth(100)
 		AUF.Debuff[i].parent:SetHeight(100)
@@ -906,8 +906,8 @@ AUF.Debuff:Build()
 
 function AUF.Buff:Build()
 	for i=1,16 do
-		AUF.Buff[i] = CreateFrame("Model", "AUFBuff", nil, "CooldownFrameTemplate")
-		AUF.Buff[i].parent = CreateFrame("Frame", nil, getglobal(AUF.BuffAnchor..i))
+		AUF.Buff[i] = CreateFrame("Model", "AUFBuff"..i, nil, "CooldownFrameTemplate")
+		AUF.Buff[i].parent = CreateFrame("Frame", "AUFBuff"..i.."Cooldown", getglobal(AUF.BuffAnchor..i))
 		AUF.Buff[i].parent:SetPoint("CENTER",getglobal(AUF.BuffAnchor..i),"CENTER", 0, 0)
 		AUF.Buff[i].parent:SetWidth(100)
 		AUF.Buff[i].parent:SetHeight(100)
