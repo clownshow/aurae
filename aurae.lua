@@ -852,3 +852,199 @@ do
 		bonuses = {}
 	end
 end
+
+
+-- UnitFrames Timer Module by Renew: https://github.com/Voidmenull/ --
+----------------------------------------------------------------------
+
+-- AUF = Aurae Unit Frames
+-- damn you Bit and your setfenv -_-
+
+local AUF = CreateFrame("Frame")
+AUF.Debuff = CreateFrame("Frame")
+AUF.Buff = CreateFrame("Frame",nil,UIParent)
+AUF.DR = CreateFrame("Frame",nil,UIParent)
+AUF:RegisterEvent("PLAYER_TARGET_CHANGED")
+AUF.UnitDebuff = UnitDebuff
+AUF.UnitBuff = UnitBuff
+
+
+AUF.DebuffAnchor = "TargetFrameDebuff"
+AUF.BuffAnchor = "TargetFrameBuff"
+
+-- get unitframes
+if getglobal("LunaLUFUnittargetDebuffFrame1") then AUF.DebuffAnchor = "LunaLUFUnittargetDebuffFrame"; AUF.BuffAnchor = "LunaLUFUnittargetBuffFrame" -- luna x2.x
+elseif getglobal("XPerl_Target_BuffFrame") then AUF.DebuffAnchor = "XPerl_Target_BuffFrame_DeBuff"; AUF.BuffAnchor = "XPerl_Target_BuffFrame_Buff" -- xperl
+elseif getglobal("DUF_TargetFrame_Debuffs_1") then AUF.DebuffAnchor = "DUF_TargetFrame_Debuffs_"; AUF.BuffAnchor = "DUF_TargetFrame_Buffs_" -- DUF
+elseif getglobal("pfUITargetDebuff1") then AUF.DebuffAnchor = "pfUITargetDebuff"; AUF.BuffAnchor = "pfUITargetBuff" -- pfUI
+end
+
+function AUF.Debuff:Build()
+	for i=1,16 do
+		AUF.Debuff[i] = CreateFrame("Model", "AUFDebuff", nil, "CooldownFrameTemplate")
+		AUF.Debuff[i].parent = CreateFrame("Frame", nil, getglobal(AUF.DebuffAnchor..i))
+		AUF.Debuff[i].parent:SetPoint("CENTER",getglobal(AUF.DebuffAnchor..i),"CENTER", 0, 0)
+		AUF.Debuff[i].parent:SetWidth(100)
+		AUF.Debuff[i].parent:SetHeight(100)
+		--AUF.Debuff[i].parent:SetFrameStrata("DIALOG")
+		if getglobal(AUF.DebuffAnchor..i) then AUF.Debuff[i].parent:SetFrameLevel(getglobal(AUF.DebuffAnchor..i):GetFrameLevel() + 1) end
+		AUF.Debuff[i]:SetParent(AUF.Debuff[i].parent)
+		AUF.Debuff[i]:SetAllPoints(AUF.Debuff[i].parent)
+		AUF.Debuff[i].parent:SetScript("OnUpdate",nil)
+		
+		AUF.Debuff[i].Font = AUF.Debuff[i]:CreateFontString(nil, "OVERLAY")
+		AUF.Debuff[i].Font:SetPoint("CENTER", 0, 0)
+		AUF.Debuff[i].Font:SetFont("Fonts\\ARIALN.TTF", 20, "OUTLINE")
+		if getglobal("pfUITargetDebuff1") then AUF.Debuff[i].Font:SetFont("Interface\\AddOns\\pfUI\\fonts\\homespun.ttf", 20, "OUTLINE") end
+		AUF.Debuff[i].Font:SetJustifyH("CENTER")
+		AUF.Debuff[i].Font:SetTextColor(1,1,1)
+		AUF.Debuff[i].Font:SetText("")
+		
+	end
+end
+AUF.Debuff:Build()
+
+function AUF.Buff:Build()
+	for i=1,16 do
+		AUF.Buff[i] = CreateFrame("Model", "AUFBuff", nil, "CooldownFrameTemplate")
+		AUF.Buff[i].parent = CreateFrame("Frame", nil, getglobal(AUF.BuffAnchor..i))
+		AUF.Buff[i].parent:SetPoint("CENTER",getglobal(AUF.BuffAnchor..i),"CENTER", 0, 0)
+		AUF.Buff[i].parent:SetWidth(100)
+		AUF.Buff[i].parent:SetHeight(100)
+		--AUF.Buff[i].parent:SetFrameStrata("DIALOG")
+		if getglobal(AUF.BuffAnchor..i) then AUF.Buff[i].parent:SetFrameLevel(getglobal(AUF.BuffAnchor..i):GetFrameLevel() + 1) end
+		AUF.Buff[i]:SetParent(AUF.Buff[i].parent)
+		AUF.Buff[i]:SetAllPoints(AUF.Buff[i].parent)
+		AUF.Buff[i].parent:SetScript("OnUpdate",nil)
+		
+		AUF.Buff[i].Font = AUF.Buff[i]:CreateFontString(nil, "OVERLAY")
+		AUF.Buff[i].Font:SetPoint("CENTER", 0, 0)
+		AUF.Buff[i].Font:SetFont("Fonts\\ARIALN.TTF", 20, "OUTLINE")
+		if getglobal("pfUITargetBuff1") then AUF.Buff[i].Font:SetFont("Interface\\AddOns\\pfUI\\fonts\\homespun.ttf", 20, "OUTLINE") end
+		AUF.Buff[i].Font:SetJustifyH("CENTER")
+		AUF.Buff[i].Font:SetTextColor(1,1,1)
+		AUF.Buff[i].Font:SetText("")
+		
+	end
+end
+AUF.Buff:Build()
+
+function AUF:UpdateFont(button,start,duration,style)
+	if style == "Debuff" then
+		AUF.Debuff[button].Duation = duration
+		AUF.Debuff[button].parent:SetScript("OnUpdate",function()
+			AUF.Debuff[button].Duation = AUF.Debuff[button].Duation - arg1
+			
+			if AUF.Debuff[button].Duation > 0 then
+				AUF.Debuff[button].Font:SetText(floor(AUF.Debuff[button].Duation+0.5))
+				if AUF.Debuff[button].Duation > 3 then
+					AUF.Debuff[button].Font:SetTextColor(1,1,1)
+				else AUF.Debuff[button].Font:SetTextColor(1,0.4,0.4) end
+					
+			else
+				AUF.Debuff[button].parent:SetScript("OnUpdate",nil)
+			end
+
+		end)
+	elseif style == "Buff" then
+		AUF.Buff[button].Duation = duration
+		AUF.Buff[button].parent:SetScript("OnUpdate",function()
+			AUF.Buff[button].Duation = AUF.Buff[button].Duation - arg1
+			
+			if AUF.Buff[button].Duation > 0 then
+				AUF.Buff[button].Font:SetText(floor(AUF.Buff[button].Duation+0.5))
+				if AUF.Buff[button].Duation > 3 then
+					AUF.Buff[button].Font:SetTextColor(1,1,1)
+				else AUF.Buff[button].Font:SetTextColor(1,0.4,0.4) end
+					
+			else
+				AUF.Buff[button].parent:SetScript("OnUpdate",nil)
+			end
+
+		end)
+	end
+end
+
+function AUF:OnEvent()
+	if event == "PLAYER_TARGET_CHANGED" then
+		AUF:OnTarget()
+	elseif event == "UNIT_AURA" and arg1 == "target" then
+		AUF:UpdateDebuffs()
+	end
+end
+AUF:SetScript("OnEvent", AUF.OnEvent)
+
+function AUF:OnTarget()
+	if UnitExists("target") then
+		AUF:RegisterEvent("UNIT_AURA")
+		AUF:UpdateDebuffs()
+	else
+		AUF:UnregisterEvent("UNIT_AURA")
+		for i=1,16 do -- xperl problem
+			AUF.Debuff[i].parent:Hide()
+			AUF.Buff[i].parent:Hide()
+		end
+	end
+end
+
+function AUF:UpdateDebuffs()
+	-- close old animations
+	for i=1,16 do
+		CooldownFrame_SetTimer(AUF.Debuff[i],0,0,0)
+		CooldownFrame_SetTimer(AUF.Buff[i],0,0,0)
+	end
+	
+	if UnitExists("target") then
+		for _, timer in timers do
+			if not timer.DR and TARGET_ID == timer.UNIT then
+				for i=1,16 do
+					if AUF.UnitDebuff("target",i) == "Interface\\Icons\\"..aurae.EFFECTS[timer.EFFECT].ICON and getglobal(AUF.DebuffAnchor..i) then
+						
+						-- xper exception
+						if  getglobal("XPerl_Target_BuffFrame") then
+							AUF.Debuff[i].parent:SetWidth(getglobal(AUF.DebuffAnchor..i):GetWidth()*0.7)
+							AUF.Debuff[i].parent:SetHeight(getglobal(AUF.DebuffAnchor..i):GetHeight()*0.7)
+							AUF.Debuff[i]:SetScale(getglobal(AUF.DebuffAnchor..i):GetHeight()/36*0.7)
+						else
+							AUF.Debuff[i].parent:SetWidth(getglobal(AUF.DebuffAnchor..i):GetWidth())
+							AUF.Debuff[i].parent:SetHeight(getglobal(AUF.DebuffAnchor..i):GetHeight())
+							AUF.Debuff[i]:SetScale(getglobal(AUF.DebuffAnchor..i):GetHeight()/36)
+						end
+						
+						AUF.Debuff[i].parent:SetPoint("CENTER",getglobal(AUF.DebuffAnchor..i),"CENTER",0,0)
+						AUF.Debuff[i].parent:Show()
+						
+						if pfCooldownFrame_SetTimer then pfCooldownFrame_SetTimer(AUF.Debuff[i],timer.START, timer.END-timer.START,1)
+						else CooldownFrame_SetTimer(AUF.Debuff[i],timer.START, timer.END-timer.START,1) end
+						AUF:UpdateFont(i,timer.START,timer.END-GetTime(),"Debuff")
+					end
+					
+					if AUF.UnitBuff("target",i) == "Interface\\Icons\\"..aurae.EFFECTS[timer.EFFECT].ICON and getglobal(AUF.BuffAnchor..i) then
+						
+						if  getglobal("XPerl_Target_BuffFrame") then
+							AUF.Buff[i].parent:SetWidth(getglobal(AUF.BuffAnchor..i):GetWidth()*0.7)
+							AUF.Buff[i].parent:SetHeight(getglobal(AUF.BuffAnchor..i):GetHeight()*0.7)
+							AUF.Buff[i]:SetScale(getglobal(AUF.BuffAnchor..i):GetHeight()/36*0.7)
+						else
+							AUF.Buff[i].parent:SetWidth(getglobal(AUF.BuffAnchor..i):GetWidth())
+							AUF.Buff[i].parent:SetHeight(getglobal(AUF.BuffAnchor..i):GetHeight())
+							AUF.Buff[i]:SetScale(getglobal(AUF.BuffAnchor..i):GetHeight()/36)
+						end
+						AUF.Buff[i].parent:SetPoint("CENTER",getglobal(AUF.BuffAnchor..i),"CENTER",0,0)
+						AUF.Buff[i].parent:Show()
+						
+						if pfCooldownFrame_SetTimer then pfCooldownFrame_SetTimer(AUF.Buff[i],timer.START, timer.END-timer.START,1)
+						else CooldownFrame_SetTimer(AUF.Buff[i],timer.START, timer.END-timer.START,1) end
+						AUF:UpdateFont(i,timer.START,timer.END-GetTime(),"Buff")
+					end
+				end
+			end
+		end
+	end
+end
+
+StartTimer_old = StartTimer
+function StartTimer(effect, unit, start)
+	StartTimer_old(effect, unit, start)
+	AUF:UpdateDebuffs()
+end
